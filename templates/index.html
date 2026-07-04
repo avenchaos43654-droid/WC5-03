@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cipher Shift | Length-Based Caesar Cipher</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            cursor: none !important;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        *, *::before, *::after {
+            cursor: none !important;
+        }
+
+        /* Hyper-Fluid Animated Gradient Canvas */
+        .shifting-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: linear-gradient(-45deg, #050508, #1a0b2e, #0b1a30, #2e0b1a);
+            background-size: 400% 400%;
+            animation: gradientStream 10s ease infinite;
+        }
+
+        @keyframes gradientStream {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Dynamic Animated Gradient Text (Shared across Title and Action Button) */
+        .gradient-text {
+            background: linear-gradient(90deg, #38bdf8, #c084fc, #f472b6, #38bdf8);
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textFlow 4s linear infinite;
+        }
+
+        @keyframes textFlow {
+            0% { background-position: 0% center; }
+            100% { background-position: 300% center; }
+        }
+
+        /* Zero-Delay Real-Time Cursor Tracking Engine */
+        #custom-cursor {
+            width: 12px;
+            height: 12px;
+            background: #ffffff;
+            border-radius: 50%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 9999;
+            will-change: transform;
+            transform: translate3d(-50%, -50%, 0);
+            box-shadow: 0 0 20px 6px rgba(56, 189, 248, 0.8), 
+                        0 0 40px 12px rgba(192, 132, 252, 0.5);
+            transition: width 0.15s ease-out, height 0.15s ease-out, background-color 0.15s ease-out;
+        }
+
+        .cursor-hover #custom-cursor {
+            width: 32px;
+            height: 32px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 2px solid rgba(56, 189, 248, 0.7);
+            box-shadow: 0 0 30px rgba(192, 132, 252, 0.8);
+        }
+
+        /* Glassmorphism Configuration Panels */
+        .glass-panel {
+            background: rgba(10, 8, 20, 0.5);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.7);
+        }
+
+        .glass-box {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: all 0.3s ease;
+        }
+
+        .glass-box:focus-within {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(56, 189, 248, 0.3);
+        }
+
+        /* Immersive Ultra-Deep Loading Overlay Screen */
+        #loader-overlay {
+            opacity: 0;
+            pointer-events: none;
+            background: rgba(4, 3, 8, 0.95);
+            backdrop-filter: blur(50px);
+            -webkit-backdrop-filter: blur(50px);
+            transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 100;
+        }
+
+        #loader-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* High-Intensity Multi-Ring Spinners */
+        .matrix-core {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            transition: transform 0.3s ease-out;
+        }
+
+        .spinner-ring {
+            position: absolute;
+            inset: 0;
+            border: 2px solid transparent;
+            border-radius: 50%;
+            animation: spinClockwise 3s linear infinite;
+            transition: all 0.4s cubic-bezier(0.075, 0.82, 0.165, 1);
+        }
+
+        .spinner-ring:nth-child(1) {
+            border-top-color: #38bdf8;
+            border-right-color: #38bdf8;
+            animation-duration: 1.2s;
+        }
+
+        .spinner-ring:nth-child(2) {
+            border-bottom-color: #c084fc;
+            border-left-color: #c084fc;
+            animation-duration: 1.8s;
+            animation-direction: reverse;
+            transform: scale(0.85);
+        }
+
+        .spinner-ring:nth-child(3) {
+            border-top-color: #f472b6;
+            animation-duration: 0.8s;
+            transform: scale(0.7);
+        }
+
+        /* Emitter Matrix Variables */
+        .node-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #ffffff;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            will-change: transform, opacity;
+        }
+
+        @keyframes spinClockwise {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .progress-line-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #38bdf8, #c084fc, #f472b6);
+            box-shadow: 0 0 20px #38bdf8;
+        }
+
+        /* Continuous Circle Blast Energy Modifiers */
+        .zap-ring-energy .spinner-ring:nth-child(1) {
+            transform: scale(4);
+            opacity: 0;
+            filter: brightness(3);
+            border-width: 8px;
+            box-shadow: 0 0 40px #38bdf8;
+        }
+        
+        .zap-ring-energy .spinner-ring:nth-child(2) {
+            transform: scale(6);
+            opacity: 0;
+            filter: brightness(3);
+            border-width: 6px;
+            box-shadow: 0 0 40px #c084fc;
+        }
+
+        .zap-ring-energy .spinner-ring:nth-child(3) {
+            transform: scale(8);
+            opacity: 0;
+            filter: brightness(3);
+            border-width: 4px;
+            box-shadow: 0 0 40px #f472b6;
+        }
+
+        /* Futuristic Zap Across Screen Animation Trigger */
+        .zap-energy {
+            animation: zapLineOut 0.5s cubic-bezier(0.075, 0.82, 0.165, 1) forwards;
+        }
+
+        @keyframes zapLineOut {
+            0% {
+                transform: scaleX(1);
+                filter: brightness(1);
+            }
+            30% {
+                transform: scaleX(5);
+                filter: brightness(3);
+                box-shadow: 0 0 30px #38bdf8, 0 0 60px #f472b6;
+                opacity: 1;
+            }
+            100% {
+                transform: scaleX(30);
+                filter: brightness(5);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="w-full h-full text-slate-200 flex flex-col items-center justify-center p-4 relative select-none">
+
+    <div class="shifting-bg"></div>
+    <div id="custom-cursor"></div>
+
+    <div class="w-full max-w-5xl z-10 flex flex-col items-center">
+        
+        <div class="interactable inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 mb-4">
+            <span class="text-sky-400 text-xs font-semibold tracking-wider uppercase">✨ Length-Based Caesar Cipher</span>
+        </div>
+
+        <h1 class="text-5xl md:text-6xl font-bold tracking-tight text-center mb-4">
+            <span class="gradient-text">Cipher Shift</span>
+        </h1>
+        <p class="text-slate-400 font-light text-center max-w-xl text-sm md:text-base mb-10 leading-relaxed">
+            Type a phrase — the length of your first word becomes the shift. Watch letters spin into their encrypted form.
+        </p>
+
+        <div class="w-full glass-panel rounded-3xl p-6 md:p-8 space-y-6 relative overflow-hidden">
+            
+            <div id="loader-overlay" class="absolute inset-0 flex flex-col items-center justify-center space-y-8">
+                <div id="matrix-core-element" class="matrix-core flex items-center justify-center">
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-ring"></div>
+                    <div id="particle-emitter-box" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
+                </div>
+                <div class="flex flex-col items-center justify-center text-center space-y-3">
+                    <p id="loading-terminal-text" class="text-[11px] tracking-[0.5em] uppercase text-sky-400 font-bold pr-[0.5em] min-h-[16px] animate-pulse">
+                        COMPUTING MATRIX VECTOR
+                    </p>
+                    <div id="progress-bar-wrapper" class="w-64 bg-white/5 h-[3px] rounded-full overflow-hidden transition-transform duration-300">
+                        <div id="loader-progress" class="progress-line-fill"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div class="flex flex-col space-y-2">
+                    <div class="flex items-center justify-between px-1">
+                        <span class="text-xs font-semibold tracking-widest text-slate-400 uppercase">👤 Plaintext</span>
+                    </div>
+                    <div class="glass-box rounded-2xl p-5 flex flex-col h-48">
+                        <textarea id="plaintext-input" placeholder="Type payload here..." class="interactable w-full flex-1 bg-transparent border-none outline-none resize-none text-xl font-medium tracking-wide text-white mono-font">YWZXY DTZW YJFR</textarea>
+                        <div class="flex items-center justify-between pt-3 border-t border-white/5 text-xs text-slate-500">
+                            <span id="char-counter">15 chars</span>
+                            <button id="clear-btn" class="interactable hover:text-white transition-colors">↺ clear</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col space-y-2">
+                    <div class="flex items-center justify-between px-1">
+                        <span class="text-xs font-semibold tracking-widest text-slate-400 uppercase"># Ciphertext</span>
+                        <button id="copy-btn" class="interactable text-xs bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1 rounded-lg transition-all text-slate-300">📋 Copy</button>
+                    </div>
+                    <div class="glass-box rounded-2xl p-5 flex flex-col h-48 relative">
+                        <div id="ciphertext-output" class="w-full flex-1 text-xl font-medium tracking-wide text-sky-400 mono-font break-all select-all filter blur-md opacity-20 transition-all duration-700">TRUST YOUR TEAM</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="flex flex-col items-center justify-center gap-6 pt-4 w-full">
+                <button 
+                    id="execute-matrix-btn"
+                    class="interactable px-12 py-4 bg-white/[0.02] hover:bg-white/[0.04] border border-white/10 rounded-xl transition-all duration-300 active:scale-[0.96] flex items-center justify-center"
+                >
+                    <span class="gradient-text font-black text-xs tracking-[0.25em] uppercase">Exchange Matrix Code</span>
+                </button>
+
+                <div class="flex items-center justify-center gap-3 text-sm text-slate-500 w-full">
+                    <div id="shift-pill" class="bg-white/5 border border-white/10 px-3 py-1 rounded-full font-mono text-xs text-white font-bold">SHIFT 5</div>
+                    <span class="font-light">— length of first word</span>
+                </div>
+            </div>
+
+            <div class="pt-6 border-t border-white/5 space-y-4">
+                <div class="text-[10px] font-bold tracking-[0.25em] text-center text-slate-500 uppercase">
+                    Alphabet - Shifted by <span id="shift-value-label">5</span>
+                </div>
+                <div id="alphabet-container" class="flex flex-wrap justify-center gap-2 max-w-4xl mx-auto"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const cursor = document.getElementById('custom-cursor');
+        const plaintextInput = document.getElementById('plaintext-input');
+        const ciphertextOutput = document.getElementById('ciphertext-output');
+        const charCounter = document.getElementById('char-counter');
+        const clearBtn = document.getElementById('clear-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        const executeMatrixBtn = document.getElementById('execute-matrix-btn');
+        const shiftPill = document.getElementById('shift-pill');
+        const shiftValueLabel = document.getElementById('shift-value-label');
+        const alphabetContainer = document.getElementById('alphabet-container');
+        const loaderOverlay = document.getElementById('loader-overlay');
+        const loaderProgress = document.getElementById('loader-progress');
+        const progressBarWrapper = document.getElementById('progress-bar-wrapper');
+        const matrixCoreElement = document.getElementById('matrix-core-element');
+        const particleEmitterBox = document.getElementById('particle-emitter-box');
+        const loadingTerminalText = document.getElementById('loading-terminal-text');
+
+        const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        const LOGS = ["INITIALIZING SYNC PROTOCOL", "DECRYPTING NODE PARITY", "EXCHANGING MATRIX VALUES", "FINALIZING CAESAR RING LOGIC"];
+        let statePayloadCache = "";
+        let stateShiftCache = 5;
+        let particleInterval;
+
+        // Zero-Delay Tracking using translation vectors linked to absolute top/left zeros
+        window.addEventListener('mousemove', (e) => {
+            cursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+        }, { passive: true });
+
+        const setupCursorInteractions = () => {
+            document.querySelectorAll('.interactable').forEach(el => {
+                el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+                el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+            });
+        };
+
+        async function evaluateMatrixCalculations() {
+            const textValue = plaintextInput.value;
+            charCounter.textContent = `${textValue.length} chars`;
+
+            try {
+                const response = await fetch('/process', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_input: textValue })
+                });
+                const data = await response.json();
+                statePayloadCache = data.result || " ";
+                stateShiftCache = data.shift_factor;
+            } catch (err) {}
+        }
+
+        // Generate beautiful spatial dynamic particle explosions
+        function spawnBlastParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'node-particle';
+            
+            const colorOptions = ['#38bdf8', '#c084fc', '#f472b6'];
+            particle.style.background = colorOptions[Math.floor(Math.random() * colorOptions.length)];
+            
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 40 + Math.random() * 80;
+            const destX = Math.cos(angle) * distance;
+            const destY = Math.sin(angle) * distance;
+            
+            particleEmitterBox.appendChild(particle);
+
+            const animation = particle.animate([
+                { transform: 'translate3d(-50%, -50%, 0) scale(1)', opacity: 1 },
+                { transform: `translate3d(calc(-50% + ${destX}px), calc(-50% + ${destY}px), 0) scale(0)`, opacity: 0 }
+            ], {
+                duration: 1000 + Math.random() * 1000,
+                easing: 'cubic-bezier(0.1, 0.8, 0.25, 1)'
+            });
+
+            animation.onfinish = () => particle.remove();
+        }
+
+        function dispatchMatrixSequence() {
+            // Instantly wipe layout animation state fields to ensure clean runs
+            progressBarWrapper.classList.remove('zap-energy');
+            matrixCoreElement.classList.remove('zap-ring-energy');
+            loaderProgress.style.transition = 'none';
+            loaderProgress.style.width = '0%';
+            
+            loaderOverlay.classList.add('active');
+            ciphertextOutput.classList.add('blur-md');
+            ciphertextOutput.classList.add('opacity-20');
+
+            particleInterval = setInterval(spawnBlastParticle, 30);
+            
+            // Allow the layout repaint to process before adding the 4-second loading transitions
+            setTimeout(() => { 
+                loaderProgress.style.transition = 'width 4s linear';
+                loaderProgress.style.width = '100%'; 
+            }, 50);
+
+            // Cycle text logs safely balanced over a 4 second lifespan window
+            let logIndex = 0;
+            const logCycleInterval = setInterval(() => {
+                logIndex = (logIndex + 1) % LOGS.length;
+                loadingTerminalText.textContent = LOGS[logIndex];
+            }, 1000);
+
+            // Exactly 4 Second Immersive Processing Hold Loop
+            setTimeout(() => {
+                clearInterval(particleInterval);
+                clearInterval(logCycleInterval);
+                
+                // Trigger the synchronized high energy bar and circle blast zaps
+                progressBarWrapper.classList.add('zap-energy');
+                matrixCoreElement.classList.add('zap-ring-energy');
+
+                // Let the zap streams finish their outward burst before clearing layout
+                setTimeout(() => {
+                    ciphertextOutput.textContent = statePayloadCache;
+                    shiftPill.textContent = `SHIFT ${stateShiftCache}`;
+                    shiftValueLabel.textContent = stateShiftCache;
+                    
+                    renderAlphabetBar(stateShiftCache);
+
+                    loaderOverlay.classList.remove('active');
+                    ciphertextOutput.classList.remove('blur-md');
+                    ciphertextOutput.classList.remove('opacity-20');
+                    loadingTerminalText.textContent = LOGS[0];
+                    
+                    // Kill transitions immediately to prevent backward scrolling loops on later runs
+                    loaderProgress.style.transition = 'none';
+                    loaderProgress.style.width = '0%';
+                    progressBarWrapper.classList.remove('zap-energy');
+                    matrixCoreElement.classList.remove('zap-ring-energy');
+                }, 450);
+            }, 4000);
+        }
+
+        function renderAlphabetBar(shift) {
+            alphabetContainer.innerHTML = '';
+            ALPHABET.forEach((letter, index) => {
+                const shiftedIndex = (index - shift + 26) % 26;
+                const shiftedLetter = ALPHABET[shiftedIndex];
+
+                const keyRing = document.createElement('div');
+                keyRing.className = "interactable flex flex-col items-center justify-center w-8 h-12 rounded-full bg-white/[0.01] border border-white/5 text-[11px] font-mono transition-all duration-300 hover:border-sky-400/40 hover:bg-white/5";
+                keyRing.innerHTML = `
+                    <span class="text-slate-600 text-[9px] font-bold">${letter}</span>
+                    <span class="text-sky-400 font-bold mt-0.5">${shiftedLetter}</span>
+                `;
+                alphabetContainer.appendChild(keyRing);
+            });
+            setupCursorInteractions();
+        }
+
+        plaintextInput.addEventListener('input', evaluateMatrixCalculations);
+        executeMatrixBtn.addEventListener('click', dispatchMatrixSequence);
+
+        clearBtn.addEventListener('click', () => {
+            plaintextInput.value = '';
+            evaluateMatrixCalculations();
+            plaintextInput.focus();
+        });
+
+        copyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(ciphertextOutput.textContent.trim());
+        });
+
+        evaluateMatrixCalculations().then(() => {
+            renderAlphabetBar(5);
+            setupCursorInteractions();
+        });
+    </script>
+</body>
+</html>
