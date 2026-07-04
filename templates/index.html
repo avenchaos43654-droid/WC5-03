@@ -3,339 +3,543 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cipher Shift | Length-Based Caesar Cipher</title>
+    <title>Quantum Cipher Node // Supernova Simulator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Orbitron:wght@500;900&display=swap');
 
+        /* Global Structural Reset */
         html, body {
             margin: 0;
             padding: 0;
-            height: 100%;
-            overflow: hidden;
-            font-family: 'Space Mono', monospace;
-            background-color: #050202;
+            min-height: 100%;
+            background-color: #030101;
+            font-family: 'Fira Code', monospace;
+            color: #a3a3a3;
+            scrollbar-color: #dc2626 #050202;
+            scrollbar-width: thin;
         }
 
-        /* Raw Industrial Grid (No slick radial glows) */
-        .shifting-bg {
+        /* Custom Industrial Scrollbar Infrastructure */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #030101;
+            border-left: 1px solid #3f1616;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #dc2626;
+            border: 2px solid #030101;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fbbf24;
+        }
+
+        /* FIXED: Classic Industrial Grid Array Overlay */
+        .industrial-matrix-grid {
             position: fixed;
             inset: 0;
-            z-index: 0;
+            z-index: 1;
             background-image: 
-                linear-gradient(rgba(239, 68, 68, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(239, 68, 68, 0.02) 1px, transparent 1px);
-            background-size: 20px 20px;
-            background-color: #080303;
+                linear-gradient(rgba(220, 38, 38, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(220, 38, 38, 0.02) 1px, transparent 1px);
+            background-size: 25px 25px;
+            pointer-events: none;
         }
 
-        /* VISUAL HOOK 1: Analogue CRT Scanline Overlay */
-        .shifting-bg::after {
+        /* FIXED: Retro Analogue CRT Scanline Mask */
+        body::after {
             content: " ";
             display: block;
             position: fixed;
             inset: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            z-index: 10;
-            background-size: 100% 3px, 3px 100%;
+            background: linear-gradient(rgba(10, 5, 5, 0) 50%, rgba(0, 0, 0, 0.35) 50%);
+            z-index: 999;
+            background-size: 100% 4px;
             pointer-events: none;
         }
 
-        /* Industrial Text Gradient */
-        .gradient-text {
-            background: linear-gradient(90deg, #dc2626, #f59e0b, #ef4444);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
+        /* Holographic Interface Panels */
+        .mainframe-panel {
+            background: rgba(10, 4, 4, 0.92);
+            border: 2px solid #450a0a;
+            box-shadow: 10px 10px 0px #000000;
+            backdrop-filter: blur(6px);
         }
 
-        /* Tactile Mechanical Panels */
-        .glass-panel {
-            background: #0f0707;
-            border: 2px solid #2e1010;
-            box-shadow: 12px 12px 0px #000000;
+        .data-bay {
+            background: rgba(5, 2, 2, 0.95);
+            border: 1px solid #5c1111;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        .glass-box {
-            background: #070303;
-            border: 1px solid #3a1515;
-        }
-
-        .glass-box:focus-within {
+        .data-bay:focus-within {
             border-color: #f59e0b;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
         }
 
-        /* VISUAL HOOK 2: Encrypted Seal Overlay Grid */
-        .seal-overlay {
-            background: repeating-linear-gradient(
-                45deg,
-                #1c0a0a,
-                #1c0a0a 10px,
-                #120606 10px,
-                #120606 20px
-            );
-            border: 1px dashed #ef4444;
-        }
-
-        /* Ultra-Deep Processing Screen */
-        #loader-overlay {
+        /* Core Processing Terminal Screen Overlay */
+        #quantum-loader {
             opacity: 0;
             pointer-events: none;
-            background: #060202;
-            border: 2px solid #ef4444;
-            transition: opacity 0.3s ease;
+            background: rgba(4, 1, 1, 0.97);
+            border: 1px solid #dc2626;
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 100;
         }
-
-        #loader-overlay.active {
+        #quantum-loader.triggered {
             opacity: 1;
             pointer-events: auto;
         }
 
-        /* Brutalist Mechanical Spinner Layout */
-        .spinner-ring {
+        /* Kinetic Radar Elements */
+        .telemetry-ring {
             position: absolute;
-            inset: 0;
-            border: 3px dashed transparent;
-            animation: spinClockwise 4s linear infinite;
+            border: 2px dashed transparent;
+            border-radius: 50%;
+            animation: radarRotate 5s linear infinite;
+        }
+        .telemetry-ring.outer { border-color: #dc2626; width: 120px; height: 120px; }
+        .telemetry-ring.inner { 
+            border-color: #f59e0b; width: 90px; height: 90px; 
+            animation-duration: 2.5s; animation-direction: reverse;
         }
 
-        .spinner-ring:nth-child(1) {
-            border-color: #dc2626;
-        }
-
-        .spinner-ring:nth-child(2) {
-            border-color: #f59e0b;
-            animation-duration: 2s;
-            animation-direction: reverse;
-            transform: scale(0.8);
-        }
-
-        @keyframes spinClockwise {
+        @keyframes radarRotate {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
 
-        .progress-line-fill {
-            width: 0%;
-            height: 100%;
-            background: #f59e0b;
-            box-shadow: 0 0 10px #f59e0b;
+        /* Terminal Display Alerts */
+        .critical-pulse {
+            animation: flashText 0.2s infinite;
         }
-
-        /* Terminal Glitch Text Effect */
-        .glitch-flash {
-            animation: textFlicker 0.15s infinite;
-        }
-        @keyframes textFlicker {
-            0% { opacity: 0.9; }
+        @keyframes flashText {
+            0%, 100% { opacity: 0.9; }
             50% { opacity: 1; }
-            100% { opacity: 0.95; }
         }
     </style>
 </head>
-<body class="w-full h-full text-stone-400 flex flex-col items-center justify-center p-4 relative select-none">
+<body class="w-full flex flex-col items-center py-16 px-4 overflow-y-auto relative select-none">
 
-    <div class="shifting-bg"></div>
+    <canvas id="quantum-space-mesh" class="fixed inset-0 w-full h-full z-0 pointer-events-none"></canvas>
+    
+    <div class="industrial-matrix-grid"></div>
 
     <div class="w-full max-w-5xl z-10 flex flex-col items-center">
         
-        <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-950/40 border border-red-900/60 mb-4 text-[11px] uppercase tracking-widest text-red-500 font-bold">
-            [ LOGIC OVERLAY INJECTED ]
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-red-950/40 border border-red-800/60 mb-6 text-[10px] tracking-widest text-red-400 font-bold uppercase">
+            <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+            [ SYSTEM STACK NODE: ONLINE ]
         </div>
 
-        <h1 class="text-4xl md:text-5xl font-black tracking-tighter text-center mb-2 uppercase">
-            <span class="gradient-text">Cipher Shift</span>
+        <h1 class="text-4xl md:text-6xl font-black tracking-tighter text-center mb-3 uppercase font-['Orbitron'] text-white">
+            NODE_<span class="text-red-500">DECOUPLER</span>
         </h1>
-        <p class="font-mono text-stone-500 text-center max-w-xl text-xs mb-8 uppercase tracking-tight">
-            Payload core generation. System takes length of string segment #1 as static variable rotational shift factor.
+        <p class="text-stone-500 text-center max-w-xl text-xs mb-10 uppercase tracking-widest leading-relaxed">
+            Asynchronous cryptographic transposition matrix. Quantum field calculations back-propagate parameters natively via string arrays.
         </p>
 
-        <div class="w-full glass-panel rounded-none p-6 md:p-8 space-y-6 relative overflow-hidden">
+        <div class="w-full mainframe-panel rounded-none p-6 md:p-8 space-y-6 relative overflow-hidden mb-8">
             
-            <div id="loader-overlay" class="absolute inset-4 flex flex-col items-center justify-center space-y-8">
-                <div class="w-24 h-24 relative flex items-center justify-center">
-                    <div class="spinner-ring"></div>
-                    <div class="spinner-ring"></div>
-                    <span class="text-[10px] text-red-500 font-bold glitch-flash">COMPUTING</span>
+            <div id="quantum-loader" class="absolute inset-4 flex flex-col items-center justify-center p-6 space-y-8">
+                <div class="relative w-32 h-32 flex items-center justify-center">
+                    <div class="telemetry-ring outer"></div>
+                    <div class="telemetry-ring inner"></div>
+                    <span class="text-[9px] font-bold tracking-widest text-red-500 font-['Orbitron'] critical-pulse">MUTATING</span>
                 </div>
-                <div class="flex flex-col items-center justify-center text-center space-y-3 w-64">
-                    <p id="loading-terminal-text" class="text-[10px] tracking-widest uppercase text-amber-500 font-mono">
-                        INITIALIZING PROTOCOL SYNC
-                    </p>
-                    <div class="w-full bg-stone-900 h-2 border border-stone-800 p-[2px]">
-                        <div id="loader-progress" class="progress-line-fill"></div>
+                
+                <div class="w-full max-w-md bg-black border border-stone-900 p-4 space-y-4">
+                    <div class="flex justify-between items-center text-[10px] text-stone-600 border-b border-stone-900 pb-2">
+                        <span>DATA_STAMP // CORE_TRANSPOSE</span>
+                        <span id="load-percentage-viewer" class="text-amber-500 font-bold">0%</span>
+                    </div>
+                    <div id="hex-telemetry-dump" class="text-[9px] text-red-950 h-6 overflow-hidden leading-tight font-bold break-all tracking-wider"></div>
+                    <div class="space-y-2">
+                        <p id="loader-status-string" class="text-[10px] text-amber-500 font-bold tracking-wider uppercase">INITIALIZING SYNC LAYER</p>
+                        <div class="w-full bg-stone-900 h-2 border border-stone-800 p-[1px]">
+                            <div id="loader-progress-tracker" class="w-0 h-full bg-gradient-to-r from-red-600 to-amber-500 shadow-[0_0_10px_#f59e0b] transition-all duration-75"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
                 
                 <div class="flex flex-col space-y-2">
-                    <div class="flex items-center justify-between px-1">
-                        <span class="text-xs font-bold tracking-wider text-stone-500 uppercase">// Plaintext Payload</span>
-                    </div>
-                    <div class="glass-box rounded-none p-5 flex flex-col h-48">
-                        <textarea id="plaintext-input" placeholder="Awaiting raw string injection..." class="w-full flex-1 bg-transparent border-none outline-none resize-none text-lg font-bold tracking-wide text-stone-200 font-mono focus:ring-0">YWZXY DTZW YJFR</textarea>
-                        <div class="flex items-center justify-between pt-3 border-t border-stone-900 text-[11px] text-stone-600">
-                            <span id="char-counter">15 chars</span>
-                            <button id="clear-btn" class="hover:text-red-500 uppercase font-bold tracking-tighter transition-colors">⚡ clear</button>
+                    <span class="text-xs font-bold text-stone-600 uppercase tracking-widest">// RAW INJECTION PACKET</span>
+                    <div class="data-bay rounded-none p-5 flex flex-col h-52">
+                        <textarea id="packet-source-input" placeholder="Inject clean payload variables..." class="w-full flex-1 bg-transparent border-none outline-none resize-none text-lg font-bold text-stone-100 focus:ring-0">YWZXY DTZW YJFR</textarea>
+                        <div class="flex items-center justify-between pt-3 border-t border-stone-900 text-[11px] text-stone-600 font-bold">
+                            <span id="packet-char-gauge">15 CHARS</span>
+                            <button id="packet-purge-trigger" class="hover:text-red-500 transition-colors uppercase tracking-tight">⚡ PURGE SYSTEM</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="flex flex-col space-y-2">
-                    <div class="flex items-center justify-between px-1">
-                        <span class="text-xs font-bold tracking-wider text-stone-500 uppercase">// Ciphertext Output</span>
-                        <button id="copy-btn" class="text-[10px] bg-stone-900 hover:bg-stone-800 border border-stone-800 px-3 py-1 uppercase tracking-tight transition-all text-stone-400">Copy Buffer</button>
-                    </div>
-                    <div class="glass-box rounded-none p-5 flex flex-col h-48 relative overflow-hidden">
+                    <span class="text-xs font-bold text-stone-600 uppercase tracking-widest">// TRANSPOSITION BUFFER</span>
+                    <div class="data-bay rounded-none p-5 flex flex-col h-52 relative overflow-hidden">
                         
-                        <div id="security-seal" class="absolute inset-0 z-30 seal-overlay flex flex-col items-center justify-center p-4 text-center">
-                            <div class="text-red-500 font-black text-xs uppercase tracking-widest mb-1 glitch-flash">⚠️ DATA PIPELINE BUFFER FILLED</div>
-                            <p class="text-stone-500 text-[9px] uppercase mb-3 max-w-[240px]">Outputs decoupled. Override manually to pull matrix.</p>
-                            <button id="break-seal-btn" class="px-4 py-1.5 bg-red-950 border border-red-500 text-red-400 hover:bg-red-500 hover:text-black font-black text-[10px] uppercase tracking-widest transition-all animate-pulse">
-                                BREAK THE SEAL
+                        <div id="inhibitor-gate" class="absolute inset-0 z-30 flex flex-col items-center justify-center p-4 text-center bg-gradient-to-br from-stone-950 to-red-950/90 border border-red-700/40">
+                            <div class="text-red-500 font-black text-xs uppercase tracking-widest mb-1 font-['Orbitron'] critical-pulse">⚠️ COUPLER RESTRAINT INTERLOCKED</div>
+                            <p class="text-stone-500 text-[9px] uppercase mb-4 max-w-[280px]">Asynchronous tracking vectors unaligned. Depress matrix compiler sequence to unlock data stream.</p>
+                            <button id="gate-override-trigger" class="px-5 py-2 bg-red-950/60 border border-red-500 text-red-400 hover:bg-red-500 hover:text-black font-bold text-[10px] uppercase tracking-widest transition-all">
+                                DECOUPLE RESTRAINTS
                             </button>
                         </div>
 
-                        <div id="ciphertext-output" class="w-full flex-1 text-lg font-bold tracking-wide text-amber-500 font-mono break-all select-all">TRUST YOUR TEAM</div>
+                        <div id="packet-mutated-output" class="w-full flex-1 text-lg font-bold text-amber-500 break-all overflow-y-auto select-all pr-2">TRUST YOUR TEAM</div>
+                        <div class="pt-3 border-t border-stone-900 flex justify-end">
+                            <button id="buffer-copy-trigger" class="text-[10px] bg-stone-900 hover:bg-stone-800 border border-stone-800 px-3 py-1 uppercase text-stone-400 transition-all font-bold">PULL BUFFER DATA</button>
+                        </div>
                     </div>
                 </div>
 
             </div>
 
-            <div class="flex flex-col items-center justify-center gap-4 pt-2 w-full">
+            <div class="flex flex-col items-center justify-center gap-4 pt-4 relative z-20">
                 <button 
-                    id="execute-matrix-btn"
-                    class="w-full md:w-auto px-16 py-3 bg-red-950/20 hover:bg-red-900/40 border border-red-900/60 rounded-none transition-all duration-200 active:translate-y-0.5 flex items-center justify-center"
+                    id="matrix-compile-trigger"
+                    class="w-full md:w-auto px-20 py-4 bg-gradient-to-r from-red-950/40 to-stone-900/60 hover:from-red-900/50 hover:to-red-950/50 border border-red-700/60 rounded-none transition-all duration-200 active:translate-y-0.5 shadow-lg"
                 >
-                    <span class="text-red-500 font-bold text-xs tracking-widest uppercase">COMPILE SEGMENT ATTRIBUTE MATRIX</span>
+                    <span class="text-red-400 font-bold font-['Orbitron'] text-xs tracking-widest uppercase">COMPILE SEGMENT ATTRIBUTE MATRIX</span>
                 </button>
 
-                <div class="flex items-center justify-center gap-3 text-xs text-stone-600 w-full font-mono">
-                    <div id="shift-pill" class="bg-stone-900 border border-stone-800 px-3 py-0.5 text-[11px] text-stone-400 font-bold">ROTATION: 5</div>
-                    <span class="uppercase tracking-tighter text-[11px]">— string array index delta factor</span>
+                <div class="flex items-center justify-center gap-3 text-xs text-stone-600 font-bold">
+                    <div id="coefficient-pill" class="bg-stone-950 border border-stone-800 px-3 py-1 text-[10px] text-stone-400">ROTATION VECTOR: 5</div>
+                    <span class="uppercase tracking-tight text-[10px]">— DELTA VALUE RATIO MATRIX</span>
                 </div>
             </div>
 
-            <div class="pt-6 border-t border-stone-900 space-y-3">
+            <div class="pt-6 border-t border-stone-900 space-y-4 relative z-10">
                 <div class="text-[10px] font-bold tracking-widest text-center text-stone-500 uppercase">
-                    REG_MAP // REGISTER BLOCK ROTATION DELTA [<span id="shift-value-label" class="text-amber-500">5</span>]
+                    REG_MAP // TRACKING SYSTEM REGISTER TRANSPOSITION COEFFICIENT [<span id="coefficient-label-id" class="text-amber-500">5</span>]
                 </div>
-                <div id="alphabet-container" class="flex flex-wrap justify-center gap-1.5 max-w-4xl mx-auto"></div>
+                <div class="w-full overflow-x-auto pb-1">
+                    <div id="register-matrix-row" class="flex justify-start md:justify-center gap-1.5 min-w-max px-2 mx-auto"></div>
+                </div>
             </div>
 
         </div>
+
+        <div class="w-full p-6 border-2 border-stone-900 bg-gradient-to-b from-stone-950 to-black/80 text-left space-y-6 mb-16 shadow-2xl">
+            <div class="border-b border-stone-900 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <h4 class="text-stone-400 text-xs font-bold uppercase tracking-widest font-['Orbitron']">// BACKEND INFRASTRUCTURE CORE FRAMEWORK ARCHITECTURE LOGS</h4>
+                <span class="text-[9px] px-2 py-0.5 bg-emerald-950/50 text-emerald-400 border border-emerald-800/60 font-bold uppercase tracking-wider self-start">MICRO-ROUTER STATUS: STABLE</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-[11px] uppercase leading-relaxed text-stone-500">
+                <div class="space-y-2 border-b md:border-b-0 md:border-r border-stone-900 pb-4 md:pb-0 md:pr-4">
+                    <span class="text-red-500 font-bold block tracking-wider">01 / FLASK ENGINE PIPELINE INTERFACE</span>
+                    <p>The backend stack relies on Python's premium micro-routing toolkit framework, <strong>Flask</strong>. Endpoints isolate functional state parameters securely inside distinct local app context threads, handling payload streams away from direct structural memory models.</p>
+                </div>
+                <div class="space-y-2 border-b md:border-b-0 md:border-r border-stone-900 pb-4 md:pb-0 md:pr-4">
+                    <span class="text-red-500 font-bold block tracking-wider">02 / DECOUPLED ASYNCHRONOUS EXPOSURE MATRIX</span>
+                    <p>Root paths trigger mapping structures via <code>GET</code> requests, routing visual nodes direct down to client browsers. Internal transformations decouple natively into an isolated backend route context block at <code>/process</code>, tracking operations explicitly using dynamic data payloads via serialized JSON request trees.</p>
+                </div>
+                <div class="space-y-2">
+                    <span class="text-red-500 font-bold block tracking-wider">03 / SEGMENT VARIABLE LENGTH TRANSPOSITION</span>
+                    <p>Inside the script calculation matrix, incoming inputs strip back into dynamic text string indices. The framework evaluates the direct memory footprint index boundary length of index array block <code>[0]</code>, computing the specific integer configuration delta modifier applied straight across the data transposition layers.</p>
+                </div>
+            </div>
+
+            <div class="bg-stone-950/80 border border-stone-900 p-4 text-[10px] text-stone-600 uppercase space-y-3">
+                <div class="text-stone-400 font-bold tracking-wider">// SYSTEM ROUTING MAP PIPELINE FLOWCHART SPECIFICATIONS</div>
+                <div class="overflow-x-auto pb-1">
+                    <p class="min-w-max leading-relaxed">
+                        <code class="text-red-400 bg-red-950/20 px-1.5 py-0.5 border border-red-900/60">HTTP REQUEST INGEST</code> ──► 
+                        <code class="text-amber-500 bg-stone-900 px-1.5 py-0.5 border border-stone-800">FLASK APP FILTER ROUTER</code> ──► 
+                        <code class="text-amber-500 bg-stone-900 px-1.5 py-0.5 border border-stone-800">STRING EXPANSION PROCESSING ARRAY</code> ──► <br class="hidden md:block">
+                        <span class="hidden md:inline-block ml-8 mt-2">└──►</span> 
+                        <code class="text-amber-400 bg-stone-900 px-1.5 py-0.5 border border-stone-800">CAESAR TRANSIPOSITION ENGINE DELTA MATRIX</code> ──► 
+                        <code class="text-emerald-400 bg-emerald-950/20 px-1.5 py-0.5 border border-emerald-900/60">JSONIFY OBJECT RESPONSIVE STREAM</code>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
     </div>
 
     <script>
-        const plaintextInput = document.getElementById('plaintext-input');
-        const ciphertextOutput = document.getElementById('ciphertext-output');
-        const charCounter = document.getElementById('char-counter');
-        const clearBtn = document.getElementById('clear-btn');
-        const copyBtn = document.getElementById('copy-btn');
-        const executeMatrixBtn = document.getElementById('execute-matrix-btn');
-        const shiftPill = document.getElementById('shift-pill');
-        const shiftValueLabel = document.getElementById('shift-value-label');
-        const alphabetContainer = document.getElementById('alphabet-container');
-        const loaderOverlay = document.getElementById('loader-overlay');
-        const loaderProgress = document.getElementById('loader-progress');
-        const securitySeal = document.getElementById('security-seal');
-        const breakSealBtn = document.getElementById('break-seal-btn');
-        const loadingTerminalText = document.getElementById('loading-terminal-text');
+        const inputField = document.getElementById('packet-source-input');
+        const outputField = document.getElementById('packet-mutated-output');
+        const countGauge = document.getElementById('packet-char-gauge');
+        const cleanTrigger = document.getElementById('packet-purge-trigger');
+        const duplicationTrigger = document.getElementById('buffer-copy-trigger');
+        const executionTrigger = document.getElementById('matrix-compile-trigger');
+        const statusBadge = document.getElementById('coefficient-pill');
+        const statusLabel = document.getElementById('coefficient-label-id');
+        const registerRow = document.getElementById('register-matrix-row');
+        const loadingMask = document.getElementById('quantum-loader');
+        const loadingBar = document.getElementById('loader-progress-tracker');
+        const hexStreamElement = document.getElementById('hex-telemetry-dump');
+        const inhibitorGate = document.getElementById('inhibitor-gate');
+        const releaseGateTrigger = document.getElementById('gate-override-trigger');
+        const percentageString = document.getElementById('load-percentage-viewer');
+        const trackingLogText = document.getElementById('loader-status-string');
 
-        const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-        const LOGS = ["INITIALIZING SYNC PROTOCOL", "DECRYPTING NODE PARITY", "EXCHANGING MATRIX VALUES", "FINALIZING CAESAR RING LOGIC"];
-        let statePayloadCache = "TRUST YOUR TEAM";
-        let stateShiftCache = 5;
+        const DICTIONARY = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        const TELEMETRY_PHRASES = ["CONNECTING QUANTUM NODE CONTEXT", "CALCULATING CORE FIELD VECTORS", "MUTATING ALPHABET REGISTER CHANNELS", "COMPILING SERIALIZED TRANSITION GRAPH"];
+        
+        let localResultString = "TRUST YOUR TEAM";
+        let dynamicRotationValue = 5;
 
-        async function evaluateMatrixCalculations() {
-            const textValue = plaintextInput.value;
-            charCounter.textContent = `${textValue.length} chars`;
+        // --- GROUND UP REWRITTEN HIGH-END INTERACTIVE 3D PHYSICS ENGINE ---
+        const spaceCanvas = document.getElementById('quantum-space-mesh');
+        const renderContext = spaceCanvas.getContext('2d');
+        let starMeshList = [];
+        let novaStateTriggered = false;
+        let novaCountdownTimer = 0;
 
-            // Lock output automatically when new text is added to enforce the seal requirement
-            securitySeal.classList.remove('hidden');
-
-            try {
-                const response = await fetch('/process', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_input: textValue })
-                });
-                const data = await response.json();
-                statePayloadCache = data.result || " ";
-                stateShiftCache = data.shift_factor;
-            } catch (err) {}
+        function adjustSimulationViewport() {
+            spaceCanvas.width = window.innerWidth;
+            spaceCanvas.height = window.innerHeight;
         }
+        window.addEventListener('resize', adjustSimulationViewport);
+        adjustSimulationViewport();
 
-        function dispatchMatrixSequence() {
-            loaderProgress.style.transition = 'none';
-            loaderProgress.style.width = '0%';
-            loaderOverlay.classList.add('active');
-
-            setTimeout(() => { 
-                loaderProgress.style.transition = 'width 2.5s cubic-bezier(0.1, 0.8, 0.3, 1)';
-                loaderProgress.style.width = '100%'; 
-            }, 50);
-
-            let logIndex = 0;
-            const logCycleInterval = setInterval(() => {
-                logIndex = (logIndex + 1) % LOGS.length;
-                loadingTerminalText.textContent = LOGS[logIndex];
-            }, 600);
-
-            setTimeout(() => {
-                clearInterval(logCycleInterval);
-                ciphertextOutput.textContent = statePayloadCache;
-                shiftPill.textContent = `ROTATION: ${stateShiftCache}`;
-                shiftValueLabel.textContent = stateShiftCache;
+        class SpaceNode {
+            constructor(isExplodingNode = false) {
+                this.isExplodingNode = isExplodingNode;
+                this.allocateInitialVectors();
+            }
+            allocateInitialVectors() {
+                // 3D Matrix Depth Fields (-250 to 250 projection fields)
+                this.x = (Math.random() - 0.5) * spaceCanvas.width;
+                this.y = (Math.random() - 0.5) * spaceCanvas.height;
+                this.z = Math.random() * 500 + 50;
                 
-                renderAlphabetBar(stateShiftCache);
+                this.scaleRadius = Math.random() * 1.2 + 0.4;
+                this.nodeColor = Math.random() > 0.55 ? '#ef4444' : '#f59e0b';
+                
+                if (this.isExplodingNode) {
+                    const trackingAngle = Math.random() * Math.PI * 2;
+                    const linearVelocity = Math.random() * 8 + 3;
+                    this.vx = Math.cos(trackingAngle) * linearVelocity;
+                    this.vy = Math.sin(trackingAngle) * linearVelocity;
+                    this.vz = (Math.random() - 0.5) * 12;
+                    // Force start directly from gravitational epicenter 
+                    this.x = 0;
+                    this.y = 0;
+                    this.z = 150;
+                    this.longevity = 1.0;
+                    this.burnDecayRate = Math.random() * 0.02 + 0.008;
+                } else {
+                    this.vx = 0;
+                    this.vy = 0;
+                    this.vz = -Math.random() * 0.6 - 0.15; // Ambient slow movement vector
+                }
+            }
+            progressState() {
+                if (this.isExplodingNode) {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    this.z += this.vz;
+                    this.longevity -= this.burnDecayRate;
+                    if (this.longevity <= 0) this.allocateInitialVectors();
+                } else {
+                    this.z += this.vz;
+                    if (this.z <= 5) this.allocateInitialVectors();
+                }
+            }
+            renderNodeProjection() {
+                // Classic Math Projection Calculations: Perspective Field Division 
+                const projectionFactor = 280 / this.z;
+                const fieldX = (this.x * projectionFactor) + spaceCanvas.width / 2;
+                const fieldY = (this.y * projectionFactor) + spaceCanvas.height / 2;
+                const computedRadius = this.scaleRadius * projectionFactor;
 
-                loaderOverlay.classList.remove('active');
-                loadingTerminalText.textContent = LOGS[0];
-            }, 2500);
+                if (fieldX < 0 || fieldX > spaceCanvas.width || fieldY < 0 || fieldY > spaceCanvas.height) return;
+
+                renderContext.beginPath();
+                renderContext.fillStyle = this.nodeColor;
+                renderContext.globalAlpha = this.isExplodingNode ? this.longevity : Math.min(1, (550 - this.z) / 450);
+                renderContext.arc(fieldX, fieldY, Math.max(0.3, computedRadius), 0, Math.PI * 2);
+                renderContext.fill();
+                
+                // Real-time glow calculations
+                if (this.isExplodingNode && this.longevity > 0.4) {
+                    renderContext.beginPath();
+                    renderContext.fillStyle = '#dc2626';
+                    renderContext.globalAlpha = this.longevity * 0.12;
+                    renderContext.arc(fieldX, fieldY, computedRadius * 3.5, 0, Math.PI * 2);
+                    renderContext.fill();
+                }
+            }
         }
 
-        function renderAlphabetBar(shift) {
-            alphabetContainer.innerHTML = '';
-            ALPHABET.forEach((letter, index) => {
-                const shiftedIndex = (index - shift + 26) % 26;
-                const shiftedLetter = ALPHABET[shiftedIndex];
+        // Initialize spatial nodes configuration maps
+        for (let idx = 0; idx < 160; idx++) starMeshList.push(new SpaceNode(false));
 
-                const keyRing = document.createElement('div');
-                keyRing.className = "flex flex-col items-center justify-center w-7 h-10 border border-stone-800 text-[10px] bg-stone-950 font-mono";
-                keyRing.innerHTML = `
-                    <span class="text-stone-700 font-bold">${letter}</span>
-                    <span class="text-red-500 font-bold">${shiftedLetter}</span>
+        function initiateMiniSupernovaSystem() {
+            novaStateTriggered = true;
+            novaCountdownTimer = 65; 
+            
+            // Clean dynamic vectors instantly
+            starMeshList = starMeshList.filter(starNode => !starNode.isExplodingNode);
+            
+            // Scaled dynamically by the calculation variables
+            const atomicBlastDensity = Math.min(280, 75 + (dynamicRotationValue * 25));
+            for (let idx = 0; idx < atomicBlastDensity; idx++) {
+                starMeshList.push(new SpaceNode(true));
+            }
+        }
+
+        function primaryRenderPipeline() {
+            renderContext.fillStyle = 'rgba(3, 1, 1, 0.22)';
+            renderContext.fillRect(0, 0, spaceCanvas.width, spaceCanvas.height);
+            renderContext.globalCompositeOperation = "screen";
+
+            if (novaStateTriggered) {
+                novaCountdownTimer--;
+                
+                // Hyper-realistic physical fusion shockwave expander geometry
+                let blastIgnitionGlow = renderContext.createRadialGradient(
+                    spaceCanvas.width / 2, spaceCanvas.height / 2, 1, 
+                    spaceCanvas.width / 2, spaceCanvas.height / 2, (65 - novaCountdownTimer) * (dynamicRotationValue * 3.2)
+                );
+                blastIgnitionGlow.addColorStop(0, '#ffffff');
+                blastIgnitionGlow.addColorStop(0.15, '#fbbf24');
+                blastIgnitionGlow.addColorStop(0.45, 'rgba(220, 38, 38, 0.25)');
+                blastIgnitionGlow.addColorStop(1, 'rgba(0,0,0,0)');
+                
+                renderContext.fillStyle = blastIgnitionGlow;
+                renderContext.globalAlpha = novaCountdownTimer / 65;
+                renderContext.fillRect(0, 0, spaceCanvas.width, spaceCanvas.height);
+
+                if (novaCountdownTimer <= 0) novaStateTriggered = false;
+            }
+
+            starMeshList.forEach(nodeItem => {
+                nodeItem.progressState();
+                nodeItem.renderNodeProjection();
+            });
+
+            requestAnimationFrame(primaryRenderPipeline);
+        }
+        primaryRenderPipeline();
+
+        // --- ENTIRELY NEW DYNAMIC COMPONENT CRYPTO ENGINES ---
+        function calculateTranspositionValues(textData) {
+            if (!textData.trim()) return { transformedText: "", resolvedShift: 0 };
+            
+            const standardizedString = textData.toUpperCase();
+            const segmentsList = standardizedString.trim().split(/\s+/);
+            const resolvedShift = segmentsList[0] ? segmentsList[0].length : 0;
+            
+            let matrixOutputAccumulator = "";
+            for (let idx = 0; idx < standardizedString.length; idx++) {
+                const textCharacter = standardizedString[idx];
+                const dictionaryIndex = DICTIONARY.indexOf(textCharacter);
+                
+                if (dictionaryIndex !== -1) {
+                    const finalIndexPosition = (dictionaryIndex - resolvedShift + 26) % 26;
+                    matrixOutputAccumulator += DICTIONARY[finalIndexPosition];
+                } else {
+                    matrixOutputAccumulator += textCharacter;
+                }
+            }
+            return { transformedText: matrixOutputAccumulator, resolvedShift: resolvedShift };
+        }
+
+        function dispatchEvaluationEngine() {
+            const rawTextPayload = inputField.value;
+            countGauge.textContent = `${rawTextPayload.length} CHARS`;
+            inhibitorGate.classList.remove('hidden');
+
+            const calculations = calculateTranspositionValues(rawTextPayload);
+            localResultString = calculations.transformedText;
+            dynamicRotationValue = calculations.resolvedShift;
+        }
+
+        // --- TIMELINE SEQUENCER METRICS SYSTEM ---
+        function triggerCompilationSequence() {
+            loadingBar.style.transition = 'none';
+            loadingBar.style.width = '0%';
+            loadingMask.classList.add('triggered');
+
+            // Force dynamic 3D simulation explosion engine updates
+            initiateMiniSupernovaSystem();
+
+            const hexDumpCycle = setInterval(() => {
+                let randomizedStreamHex = "";
+                for(let idx=0; idx<32; idx++) {
+                    randomizedStreamHex += Math.floor(Math.random()*16).toString(16).toUpperCase();
+                }
+                hexStreamElement.textContent = randomizedStreamHex;
+            }, 45);
+
+            let trackingIndex = 0;
+            const phraseTrackingCycle = setInterval(() => {
+                trackingIndex = (trackingIndex + 1) % TELEMETRY_PHRASES.length;
+                trackingLogText.textContent = TELEMETRY_PHRASES[trackingIndex];
+            }, 500);
+
+            let engineLoadValue = 0;
+            const coreLoadTracker = setInterval(() => {
+                engineLoadValue += Math.random() * 4 + 1.2;
+                if (engineLoadValue >= 100) {
+                    engineLoadValue = 100;
+                    clearInterval(coreLoadTracker);
+                    clearInterval(hexDumpCycle);
+                    clearInterval(phraseTrackingCycle);
+                    
+                    setTimeout(() => {
+                        outputField.textContent = localResultString;
+                        statusBadge.textContent = `ROTATION VECTOR: ${dynamicRotationValue}`;
+                        statusLabel.textContent = dynamicRotationValue;
+                        
+                        buildRegisterVisualDisplay(dynamicRotationValue);
+
+                        loadingMask.classList.remove('triggered');
+                        trackingLogText.textContent = TELEMETRY_PHRASES[0];
+                        hexStreamElement.textContent = "";
+                    }, 150);
+                }
+                loadingBar.style.width = `${engineLoadValue}%`;
+                percentageString.textContent = `${Math.floor(engineLoadValue)}%`;
+            }, 25);
+        }
+
+        function buildRegisterVisualDisplay(shiftAmount) {
+            registerRow.innerHTML = '';
+            DICTIONARY.forEach((dictionaryCharacter, elementIndex) => {
+                const targetShiftedIndex = (elementIndex - shiftAmount + 26) % 26;
+                const mutatedCharacter = DICTIONARY[targetShiftedIndex];
+
+                const registerNodeCell = document.createElement('div');
+                registerNodeCell.className = "flex flex-col items-center justify-center w-7 h-10 border border-stone-800 text-[10px] bg-stone-950 font-bold flex-shrink-0";
+                registerNodeCell.innerHTML = `
+                    <span class="text-stone-700">${dictionaryCharacter}</span>
+                    <span class="text-red-500">${mutatedCharacter}</span>
                 `;
-                alphabetContainer.appendChild(keyRing);
+                registerRow.appendChild(registerNodeCell);
             });
         }
 
-        // Break the Seal Hook Interaction
-        breakSealBtn.addEventListener('click', () => {
-            securitySeal.classList.add('hidden');
+        // --- CONTEXT BOUND INTERACTION LISTENERS ---
+        releaseGateTrigger.addEventListener('click', () => {
+            inhibitorGate.classList.add('hidden');
         });
 
-        plaintextInput.addEventListener('input', evaluateMatrixCalculations);
-        executeMatrixBtn.addEventListener('click', dispatchMatrixSequence);
+        inputField.addEventListener('input', dispatchEvaluationEngine);
+        executionTrigger.addEventListener('click', triggerCompilationSequence);
 
-        clearBtn.addEventListener('click', () => {
-            plaintextInput.value = '';
-            evaluateMatrixCalculations();
-            plaintextInput.focus();
+        cleanTrigger.addEventListener('click', () => {
+            inputField.value = '';
+            dispatchEvaluationEngine();
+            inputField.focus();
         });
 
-        copyBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(ciphertextOutput.textContent.trim());
+        duplicationTrigger.addEventListener('click', () => {
+            navigator.clipboard.writeText(outputField.textContent.trim());
         });
 
-        // Bootstrap sequence
-        evaluateMatrixCalculations().then(() => {
-            renderAlphabetBar(5);
-        });
+        // Bootstrap Core Runtime Sequence
+        dispatchEvaluationEngine();
+        buildRegisterVisualDisplay(5);
     </script>
 </body>
 </html>
